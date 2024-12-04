@@ -1,0 +1,21 @@
+{
+  "name": "protochain-ts",
+  "version": "1.0.0",
+  "description": "Blockchain Prototype created with Typescript",
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc",
+    "dev": "npx nodemon --watch './src/' --exec 'ts-node ./src/lib/blockchain.ts' -e ts",
+    "start": "node ./dist/blockchain.js",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}
