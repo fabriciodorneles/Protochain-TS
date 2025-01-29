@@ -5,22 +5,37 @@ import Block from './block'
  */
 export default class Blockchain {
   blocks: Block[]
+  nextIndex: number = 0
 
   /**
    * Create a new blockchain with genesis block
    */
   constructor() {
-    this.blocks = [new Block(0, '', 'Genesis block')]
+    this.blocks = [new Block(this.nextIndex, '', 'Genesis block')]
+    this.nextIndex++
   }
 
-  addBlock(block: Block) {
+  getLastBlock(): Block {
+    return this.blocks[this.blocks.length - 1]
+  }
+
+  addBlock(block: Block): boolean {
+    const lastBlock = this.getLastBlock()
+    if (!block.isValid(lastBlock.hash, lastBlock.index)) return false
     this.blocks.push(block)
+    this.nextIndex++
+    return true
   }
 
   isValid(): boolean {
-    for (let i = 0; i < this.blocks.length; i++) {
-      if (i !== this.blocks[i].index) return false
-      if (i > 0 && this.blocks[i - 1].hash !== this.blocks[i].hash) return false
+    for (let i = this.blocks.length - 1; i > 0; i--) {
+      const currentBlock = this.blocks[i]
+      const previousBlock = this.blocks[i - 1]
+      const isValid = currentBlock.isValid(
+        previousBlock.hash,
+        previousBlock.index,
+      )
+      if (!isValid) return false
     }
     return true
   }
