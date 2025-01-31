@@ -6,7 +6,7 @@ import Block from '../lib/block'
 
 const app = express()
 
-app.use(morgan('tiny'))
+if (process.argv.includes('--run')) app.use(morgan('tiny'))
 app.use(express.json())
 
 const blockchain = new Blockchain()
@@ -38,7 +38,6 @@ const postBlockHandler: RequestHandler<
 > = async (req, res) => {
   if (req.body.hash === undefined) {
     res.sendStatus(422)
-
     return
   }
 
@@ -51,6 +50,9 @@ const postBlockHandler: RequestHandler<
 
 app.post('/blocks', postBlockHandler)
 
-app.listen(3000, () => {
-  console.log('Blockchain server is running on http://localhost:3000')
-})
+if (process.argv.includes('--run'))
+  app.listen(3000, () => {
+    console.log('Blockchain server is running on http://localhost:3000')
+  })
+
+export { app }
