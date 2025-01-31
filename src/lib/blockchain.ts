@@ -12,7 +12,13 @@ export default class Blockchain {
    * Create a new blockchain with genesis block
    */
   constructor() {
-    this.blocks = [new Block(this.nextIndex, '', 'Genesis block')]
+    this.blocks = [
+      new Block({
+        index: this.nextIndex,
+        hash: '',
+        data: 'Genesis block',
+      } as Block),
+    ]
     this.nextIndex++
   }
 
@@ -28,6 +34,12 @@ export default class Blockchain {
     this.blocks.push(block)
     this.nextIndex++
     return new Validation(true, 'Block added successfully')
+  }
+
+  getBlock(parameter: number | string | undefined): Block | undefined {
+    return this.blocks.find(
+      (block) => block.index === Number(parameter) || block.hash === parameter,
+    )
   }
 
   isValid(): Validation {
