@@ -21,7 +21,6 @@ app.get('/status', (req, res) => {
 
 app.get('/blocks/:indexOrHash', (req, res) => {
   const { indexOrHash } = req.params
-  console.log('-> ', indexOrHash)
   const block = blockchain.getBlock(indexOrHash)
 
   if (block) {

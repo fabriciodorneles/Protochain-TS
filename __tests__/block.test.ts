@@ -1,6 +1,7 @@
 import Block from '../src/lib/block'
 
 describe('Block', () => {
+  const exampleDifficulty = 0
   let genesis: Block
 
   beforeAll(() => {
@@ -11,13 +12,20 @@ describe('Block', () => {
     } as Block)
   })
 
-  it('should be valid', () => {
+  it('should be valid', async () => {
     const block = new Block({
       index: 1,
       previousHash: genesis.hash,
-      data: 'data',
+      data: 'Block 2',
     } as Block)
-    expect(block.isValid(genesis.hash, genesis.index).success).toBe(true)
+    block.mine(exampleDifficulty, 'miner')
+    const validation = block.isValid(
+      genesis.hash,
+      genesis.index,
+      exampleDifficulty,
+    )
+    expect(validation.success).toBeTruthy()
+    expect(validation.message).toBe('Block is valid')
   })
 
   it('should create a block with no parameter', () => {
@@ -26,6 +34,8 @@ describe('Block', () => {
       data: '',
       hash: block.getHash(),
       index: 0,
+      miner: '',
+      nonce: 0,
       previousHash: '',
       timestamp: block.timestamp,
     } as Block)
@@ -37,7 +47,9 @@ describe('Block', () => {
       previousHash: genesis.hash,
       data: 'data',
     } as Block)
-    expect(block.isValid(genesis.hash, genesis.index).success).toBe(false)
+    expect(
+      block.isValid(genesis.hash, genesis.index, exampleDifficulty).success,
+    ).toBe(false)
   })
 
   it('should be invalid (previous hash)', () => {
@@ -46,7 +58,9 @@ describe('Block', () => {
       previousHash: '',
       data: 'data',
     } as Block)
-    expect(block.isValid(genesis.hash, genesis.index).success).toBe(false)
+    expect(
+      block.isValid(genesis.hash, genesis.index, exampleDifficulty).success,
+    ).toBe(false)
   })
 
   it('should be invalid (timestamp)', () => {
@@ -56,7 +70,9 @@ describe('Block', () => {
       data: 'data',
     } as Block)
     block.timestamp = -1
-    expect(block.isValid(genesis.hash, genesis.index).success).toBe(false)
+    expect(
+      block.isValid(genesis.hash, genesis.index, exampleDifficulty).success,
+    ).toBe(false)
   })
 
   it('should be invalid (data)', () => {
@@ -65,7 +81,9 @@ describe('Block', () => {
       previousHash: genesis.hash,
       data: '',
     } as Block)
-    expect(block.isValid(genesis.hash, genesis.index).success).toBe(false)
+    expect(
+      block.isValid(genesis.hash, genesis.index, exampleDifficulty).success,
+    ).toBe(false)
   })
 
   it('should be invalid (hash)', () => {
@@ -74,8 +92,22 @@ describe('Block', () => {
       previousHash: genesis.hash,
       data: 'data',
     } as Block)
+    block.mine(exampleDifficulty, 'miner')
     block.hash = ''
-    expect(block.isValid(genesis.hash, genesis.index).success).toBe(false)
+    expect(
+      block.isValid(genesis.hash, genesis.index, exampleDifficulty).success,
+    ).toBe(false)
+  })
+
+  it('should be invalid (no mined)', () => {
+    const block = new Block({
+      index: 1,
+      previousHash: genesis.hash,
+      data: 'data',
+    } as Block)
+    expect(
+      block.isValid(genesis.hash, genesis.index, exampleDifficulty).success,
+    ).toBe(false)
   })
 
   describe('Constructor', () => {
