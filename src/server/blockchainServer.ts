@@ -1,17 +1,24 @@
-import express, { RequestHandler } from 'express'
+import dotenv from 'dotenv'
+import express, { Request, RequestHandler, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import morgan from 'morgan'
 import Blockchain from '../lib/blockchain'
 import Block from '../lib/block'
 
+dotenv.config()
+
+const PORT: number = parseInt(process.env.PORT || '3000')
+
 const app = express()
 
+/* c8 ignore next */
 if (process.argv.includes('--run')) app.use(morgan('tiny'))
+
 app.use(express.json())
 
 const blockchain = new Blockchain()
 
-app.get('/status', (req, res) => {
+app.get('/status', (req: Request, res: Response) => {
   res.json({
     numberOfBlocks: blockchain.blocks.length,
     isValid: blockchain.isValid(),
@@ -19,7 +26,11 @@ app.get('/status', (req, res) => {
   })
 })
 
-app.get('/blocks/:indexOrHash', (req, res) => {
+app.get('/blocks/next', (req: Request, res: Response) => {
+  res.json(blockchain.getNextBlock())
+})
+
+app.get('/blocks/:indexOrHash', (req: Request, res: Response) => {
   const { indexOrHash } = req.params
   const block = blockchain.getBlock(indexOrHash)
 
@@ -34,7 +45,7 @@ const postBlockHandler: RequestHandler<
   ParamsDictionary,
   Block | { message: string },
   Block
-> = async (req, res) => {
+> = async (req: Request, res: Response) => {
   if (req.body.hash === undefined) {
     res.sendStatus(422)
     return
@@ -49,9 +60,10 @@ const postBlockHandler: RequestHandler<
 
 app.post('/blocks', postBlockHandler)
 
+/* c8 ignore next 4 */
 if (process.argv.includes('--run'))
-  app.listen(3000, () => {
-    console.log('Blockchain server is running on http://localhost:3000')
-  })
+  app.listen(PORT, () =>
+    console.log('Blockchain server is running on http://localhost:3000'),
+  )
 
 export { app }

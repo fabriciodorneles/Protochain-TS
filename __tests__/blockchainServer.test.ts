@@ -17,6 +17,12 @@ describe('BlockchainServer', () => {
     expect(response.body.lastBlock.index).toBe(0)
   })
 
+  test('GET /blocks/next should get next block info', async () => {
+    const response = await request(app).get('/blocks/next')
+    expect(response.status).toBe(200)
+    expect(response.body.index).toBe(1)
+  })
+
   test('GET /blocks/:indexOrHash should return genesis with index', async () => {
     const response = await request(app).get('/blocks/0')
     expect(response.status).toBe(200)

@@ -1,4 +1,5 @@
 import Block from '../src/lib/block'
+import BlockInfo from '../src/lib/blockInfo'
 
 describe('Block', () => {
   const exampleDifficulty = 0
@@ -148,6 +149,28 @@ describe('Block', () => {
       expect(block.previousHash).toBe('')
       expect(block.hash).toBe(block.getHash())
       expect(block.timestamp).toBeLessThanOrEqual(Date.now())
+    })
+
+    it('should create a block with no parameter', () => {
+      const blockInfo: BlockInfo = {
+        index: 1,
+        previousHash: genesis.hash,
+        difficulty: 0,
+        maxDifficulty: 62,
+        feePerTx: 5,
+        data: 'Block 2',
+      }
+      const block = Block.fromBlockInfo(blockInfo)
+      block.mine(0, 'miner')
+      expect(block).toEqual({
+        data: 'Block 2',
+        hash: block.getHash(),
+        index: 1,
+        miner: 'miner',
+        nonce: 1,
+        previousHash: genesis.hash,
+        timestamp: block.timestamp,
+      } as Block)
     })
   })
 })

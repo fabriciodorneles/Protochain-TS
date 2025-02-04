@@ -100,4 +100,14 @@ describe('Blockchain', () => {
     const block = blockchain.getBlock(999)
     expect(block).toBeUndefined()
   })
+
+  it('should get next block info', () => {
+    const blockchain = new Blockhain()
+    const nextBlockInfo = blockchain.getNextBlock()
+    expect(nextBlockInfo.index).toBe(1)
+    expect(nextBlockInfo.previousHash).toBe(blockchain.blocks[0].hash)
+    expect(nextBlockInfo.difficulty).toBe(1)
+    expect(nextBlockInfo.maxDifficulty).toBe(62)
+    expect(nextBlockInfo.feePerTx).toBe(1)
+  })
 })

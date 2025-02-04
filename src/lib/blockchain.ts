@@ -1,4 +1,5 @@
 import Block from './block'
+import BlockInfo from './blockInfo'
 import Validation from './validation'
 
 /**
@@ -8,6 +9,7 @@ export default class Blockchain {
   blocks: Block[]
   nextIndex: number = 0
   static readonly DIFFICULTY_FACTOR: number = 5
+  static readonly MAX_DIFFICULTY: number = 62
 
   /**
    * Create a new blockchain with genesis block
@@ -67,5 +69,27 @@ export default class Blockchain {
         )
     }
     return new Validation(true, 'Blockchain is valid')
+  }
+
+  getFeePerTx(): number {
+    return 1
+  }
+
+  getNextBlock(): BlockInfo {
+    const data = new Date().toString()
+    const difficulty = this.getDifficulty()
+    const previousHash = this.getLastBlock().hash
+    const index = this.blocks.length
+    const feePerTx = this.getFeePerTx()
+    const maxDifficulty = Blockchain.MAX_DIFFICULTY
+
+    return {
+      index,
+      previousHash,
+      difficulty,
+      feePerTx,
+      data,
+      maxDifficulty,
+    } as BlockInfo
   }
 }
