@@ -1,7 +1,10 @@
 import Blockhain from '../src/lib/blockchain'
 import Block from '../src/lib/block'
+import Transaction from '../src/lib/transaction'
+import { TransactionType } from '../src/lib/transactionType'
 
 jest.mock('../src/lib/block')
+jest.mock('../src/lib/transaction')
 
 describe('Blockchain', () => {
   it('Should has genesis block', () => {
@@ -20,7 +23,12 @@ describe('Blockchain', () => {
       new Block({
         index: 1,
         previousHash: blockchain.blocks[0].hash,
-        data: 'Block 2',
+        transactions: [
+          new Transaction({
+            type: TransactionType.FEE,
+            data: 'test data',
+          } as Transaction),
+        ],
       } as Block),
     )
     expect(result.success).toBe(true)
@@ -33,7 +41,12 @@ describe('Blockchain', () => {
       new Block({
         index: -1,
         previousHash: blockchain.blocks[0].hash,
-        data: 'Block 2',
+        transactions: [
+          new Transaction({
+            type: TransactionType.FEE,
+            data: 'test data',
+          } as Transaction),
+        ],
       } as Block),
     )
     expect(result.success).toBe(false)
@@ -46,7 +59,12 @@ describe('Blockchain', () => {
       new Block({
         index: 1,
         previousHash: blockchain.blocks[0].hash,
-        data: 'Block 2',
+        transactions: [
+          new Transaction({
+            type: TransactionType.FEE,
+            data: 'test data',
+          } as Transaction),
+        ],
       } as Block),
     )
     expect(blockchain.isValid().success).toBe(true)
@@ -58,7 +76,12 @@ describe('Blockchain', () => {
       new Block({
         index: 1,
         previousHash: blockchain.blocks[0].hash,
-        data: 'Block 2',
+        transactions: [
+          new Transaction({
+            type: TransactionType.FEE,
+            data: 'test data',
+          } as Transaction),
+        ],
       } as Block),
     )
     blockchain.blocks[1].index = -1
@@ -71,13 +94,23 @@ describe('Blockchain', () => {
       new Block({
         index: 1,
         previousHash: blockchain.blocks[0].hash,
-        data: 'Block 2',
+        transactions: [
+          new Transaction({
+            type: TransactionType.FEE,
+            data: 'test data',
+          } as Transaction),
+        ],
       } as Block),
     )
     const block = blockchain.getBlock(1)
     expect(block).toBeDefined()
     expect(block?.index).toBe(1)
-    expect(block?.data).toBe('Block 2')
+    expect(block?.transactions).toEqual([
+      expect.objectContaining({
+        data: 'test data',
+        type: TransactionType.FEE,
+      }),
+    ])
   })
 
   it('should get the block by hash', () => {
@@ -85,14 +118,24 @@ describe('Blockchain', () => {
     const newBlock = new Block({
       index: 1,
       previousHash: blockchain.blocks[0].hash,
-      data: 'Block 2',
+      transactions: [
+        new Transaction({
+          type: TransactionType.FEE,
+          data: 'test data',
+        } as Transaction),
+      ],
       hash: 'abcd',
     } as Block)
     blockchain.addBlock(newBlock)
     const block = blockchain.getBlock(newBlock.hash)
     expect(block).toBeDefined()
     expect(block?.hash).toBe(newBlock.hash)
-    expect(block?.data).toBe('Block 2')
+    expect(block?.transactions).toEqual([
+      expect.objectContaining({
+        data: 'test data',
+        type: TransactionType.FEE,
+      }),
+    ])
   })
 
   it('should return undefined for non-existing block', () => {

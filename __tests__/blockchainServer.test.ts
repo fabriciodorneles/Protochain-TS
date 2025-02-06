@@ -1,5 +1,7 @@
 import request from 'supertest'
 import { app } from '../src/server/blockchainServer'
+import Transaction from '../src/lib/transaction'
+import { TransactionType } from '../src/lib/transactionType'
 
 jest.mock('../src/lib/block')
 jest.mock('../src/lib/blockchain')
@@ -13,7 +15,12 @@ describe('BlockchainServer', () => {
       message: 'Blockchain is valid',
       success: true,
     })
-    expect(response.body.lastBlock.data).toBe('Genesis block')
+    expect(response.body.lastBlock.transactions).toEqual([
+      expect.objectContaining({
+        type: TransactionType.FEE,
+        data: expect.any(String),
+      }),
+    ])
     expect(response.body.lastBlock.index).toBe(0)
   })
 
@@ -26,14 +33,24 @@ describe('BlockchainServer', () => {
   test('GET /blocks/:indexOrHash should return genesis with index', async () => {
     const response = await request(app).get('/blocks/0')
     expect(response.status).toBe(200)
-    expect(response.body.data).toBe('Genesis block')
+    expect(response.body.transactions).toEqual([
+      expect.objectContaining({
+        type: TransactionType.FEE,
+        data: expect.any(String),
+      }),
+    ])
     expect(response.body.index).toBe(0)
   })
 
   test('GET /blocks/:indexOrHash should return genesis with hash', async () => {
     const response = await request(app).get('/blocks/abc')
     expect(response.status).toBe(200)
-    expect(response.body.data).toBe('Genesis block')
+    expect(response.body.transactions).toEqual([
+      expect.objectContaining({
+        type: TransactionType.FEE,
+        data: expect.any(String),
+      }),
+    ])
     expect(response.body.index).toBe(0)
   })
 
@@ -44,22 +61,41 @@ describe('BlockchainServer', () => {
   })
 
   test('POST /blocks should return new block', async () => {
-    const response = await request(app).post('/blocks').send({
-      hash: '',
-      index: 1,
-      data: 'block 2',
-    })
+    const response = await request(app)
+      .post('/blocks')
+      .send({
+        hash: '',
+        index: 1,
+        transactions: [
+          new Transaction({
+            type: TransactionType.FEE,
+            data: 'Block 2',
+          } as Transaction),
+        ],
+      })
     expect(response.status).toBe(201)
-    expect(response.body.data).toBe('block 2')
+    expect(response.body.transactions).toEqual([
+      expect.objectContaining({
+        type: TransactionType.FEE,
+        data: expect.any(String),
+      }),
+    ])
   })
 
   test('POST /blocks should return new block', async () => {
-    const response = await request(app).post('/blocks').send({
-      hash: '',
-      index: -1,
-      data: 'block 2',
-      previousHash: 'abc',
-    })
+    const response = await request(app)
+      .post('/blocks')
+      .send({
+        hash: '',
+        index: -1,
+        transactions: [
+          new Transaction({
+            type: TransactionType.FEE,
+            data: 'Block 2',
+          } as Transaction),
+        ],
+        previousHash: 'abc',
+      })
     expect(response.status).toBe(400)
     expect(response.body.message).toBe('Invalid mock block')
   })
